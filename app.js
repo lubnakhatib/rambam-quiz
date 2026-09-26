@@ -169,7 +169,7 @@
 
     onSubmit(f, function (d) {
       if (!d.firstName || !d.lastName || !d.department) throw new Error('יש למלא את כל השדות');
-      if (d.email.toLowerCase().split('@')[1] !== cfg.domain) throw new Error('ההרשמה מותרת רק עם כתובת מייל של ' + cfg.domain);
+      // בדיקת הדומיין נעשית בשרת (מנהלים מורשים להירשם גם מחוץ לדומיין)
       if (!validPassword(d.password)) throw new Error('הסיסמה חייבת להכיל לפחות 8 תווים, כולל אות באנגלית וספרה');
       if (d.password !== d.password2) throw new Error('הסיסמאות אינן תואמות');
       return api('register', d).then(function (res) {
