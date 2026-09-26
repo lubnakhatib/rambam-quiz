@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#0f6b66">
+  <title>לומדה – מניעת זיהומים | רמב"ם</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Assistant:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <!-- רקע גרפי עדין: מוטיבים של מניעת זיהומים -->
+  <svg class="bg-art" aria-hidden="true" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <g id="m-drop"><path d="M0-22C8-10 14-2 14 6a14 14 0 0 1-28 0c0-8 6-16 14-28z"/></g>
+      <g id="m-shield"><path d="M0-24l20 7v12c0 13-9 22-20 27-11-5-20-14-20-27v-12z"/><path d="M-8 2l6 6 11-12" fill="none" stroke-width="3" stroke="var(--bg-art-accent)"/></g>
+      <g id="m-cell"><circle r="14"/><circle r="4" cx="-3" cy="-2" fill="var(--bg)"/><path d="M14 0h8M-14 0h-8M0 14v8M0-14v-8M10 10l6 6M-10-10l-6-6M10-10l6-6M-10 10l-6 6" stroke-width="2.4" stroke="currentColor" fill="none"/></g>
+      <g id="m-cross"><path d="M-6-18h12v12h12v12H6v12H-6V6h-12V-6h12z"/></g>
+      <g id="m-bubble"><circle r="9"/><circle r="4" cx="16" cy="-10"/><circle r="2.5" cx="-12" cy="-14"/></g>
+    </defs>
+    <g class="bg-motifs">
+      <use href="#m-drop" x="90" y="120"/>
+      <use href="#m-cell" x="1080" y="140"/>
+      <use href="#m-shield" x="1010" y="720"/>
+      <use href="#m-bubble" x="180" y="760"/>
+      <use href="#m-cross" x="620" y="60"/>
+      <use href="#m-cell" x="60" y="470"/>
+      <use href="#m-drop" x="1150" y="460"/>
+      <use href="#m-bubble" x="820" y="850"/>
+      <use href="#m-shield" x="300" y="300"/>
+      <use href="#m-cross" x="400" y="860"/>
+      <use href="#m-bubble" x="940" y="330"/>
+    </g>
+    <path class="bg-wave" d="M0 780 C 250 720 420 860 700 800 S 1050 700 1200 760 V900 H0z"/>
+  </svg>
+
+  <header class="topbar">
+    <div class="brand">
+      <img src="assets/RambamLogo.webp" alt="הקריה הרפואית לבריאות האדם רמב&quot;ם" class="logo" onerror="this.replaceWith(Object.assign(document.createElement('span'),{className:'logo-fallback',textContent:'רמב״ם'}))">
+      <div class="brand-text">
+        <strong id="appTitle">לומדה ממוחשבת</strong>
+        <span>היחידה למניעת זיהומים</span>
+      </div>
+    </div>
+    <div class="userbox" id="userbox" hidden>
+      <span id="userName"></span>
+      <button class="link" id="btnAdmin" hidden>דוחות</button>
+      <button class="link" id="btnLogout">יציאה</button>
+    </div>
+  </header>
+
+  <div class="demo-banner" id="demoBanner" hidden>מצב הדגמה מקומי – ללא שרת. הנתונים נשמרים בדפדפן בלבד.</div>
+
+  <main id="app" class="container" aria-live="polite"></main>
+
+  <div class="toast" id="toast" role="status" hidden></div>
+
+  <!-- ===================== תבניות ===================== -->
+
+  <template id="tpl-login">
+    <section class="card auth">
+      <div class="auth-hero">
+        <svg viewBox="0 0 64 64" class="hero-icon" aria-hidden="true"><path d="M32 4l22 8v14c0 15-10 27-22 33C20 53 10 41 10 26V12z" fill="var(--primary-soft)"/><path d="M22 32l7 7 14-15" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <h1>ברוכים הבאים</h1>
+        <p class="muted">התחברו עם כתובת המייל הארגונית כדי להתחיל את הלומדה</p>
+      </div>
+      <form id="formLogin" novalidate>
+        <label>אימייל<input type="email" name="email" autocomplete="username" dir="ltr" required placeholder="name@rmc.gov.il"></label>
+        <label>סיסמה<input type="password" name="password" autocomplete="current-password" dir="ltr" required></label>
+        <button class="btn primary block" type="submit">התחברות</button>
+      </form>
+      <div class="auth-links">
+        <button class="link" data-go="register">משתמש חדש? להרשמה</button>
+        <button class="link" data-go="forgot">שכחתי סיסמה</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-register">
+    <section class="card auth">
+      <h1>הרשמה</h1>
+      <p class="muted">ההרשמה מותרת רק עם כתובת מייל <b dir="ltr" class="domain"></b>. לאחר ההרשמה יישלח קוד אימות למייל.</p>
+      <form id="formRegister" novalidate>
+        <div class="row2">
+          <label>שם פרטי<input name="firstName" autocomplete="given-name" required maxlength="40"></label>
+          <label>שם משפחה<input name="lastName" autocomplete="family-name" required maxlength="40"></label>
+        </div>
+        <label>מחלקה<span class="dept-slot"></span></label>
+        <label>אימייל ארגוני<input type="email" name="email" autocomplete="email" dir="ltr" required></label>
+        <label>סיסמה<input type="password" name="password" autocomplete="new-password" dir="ltr" required minlength="8">
+          <small class="muted">לפחות 8 תווים, כולל אות באנגלית וספרה</small></label>
+        <label>אימות סיסמה<input type="password" name="password2" autocomplete="new-password" dir="ltr" required></label>
+        <button class="btn primary block" type="submit">הרשמה</button>
+      </form>
+      <div class="auth-links"><button class="link" data-go="login">כבר רשומים? להתחברות</button></div>
+    </section>
+  </template>
+
+  <template id="tpl-verify">
+    <section class="card auth">
+      <h1 class="v-title">אימות כתובת מייל</h1>
+      <p class="muted">שלחנו קוד בן 6 ספרות אל <b dir="ltr" class="v-email"></b>. הקוד בתוקף ל-30 דקות. אם לא הגיע, בדקו גם בתיבת דואר הזבל.</p>
+      <form id="formVerify" novalidate>
+        <label>קוד אימות<input name="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" dir="ltr" class="code-input" required></label>
+        <div class="reset-only" hidden>
+          <label>סיסמה חדשה<input type="password" name="password" autocomplete="new-password" dir="ltr" minlength="8">
+            <small class="muted">לפחות 8 תווים, כולל אות באנגלית וספרה</small></label>
+          <label>אימות סיסמה<input type="password" name="password2" autocomplete="new-password" dir="ltr"></label>
+        </div>
+        <button class="btn primary block" type="submit">אישור</button>
+      </form>
+      <div class="auth-links">
+        <button class="link" id="btnResend">שליחת קוד חדש</button>
+        <button class="link" data-go="login">חזרה להתחברות</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-forgot">
+    <section class="card auth">
+      <h1>איפוס סיסמה</h1>
+      <p class="muted">הזינו את כתובת המייל שאיתה נרשמתם ונשלח אליה קוד לאיפוס.</p>
+      <form id="formForgot" novalidate>
+        <label>אימייל<input type="email" name="email" autocomplete="username" dir="ltr" required></label>
+        <button class="btn primary block" type="submit">שליחת קוד</button>
+      </form>
+      <div class="auth-links"><button class="link" data-go="login">חזרה להתחברות</button></div>
+    </section>
+  </template>
+
+  <template id="tpl-home">
+    <section class="card home">
+      <h1>שלום <span class="h-name"></span></h1>
+      <p>הלומדה מבוססת על תרחיש קליני מתגלגל של מטופל עם צנתר ורידי מרכזי. השאלות מוצגות ברצף קבוע, זו אחר זו.</p>
+      <ul class="steps">
+        <li><span>1</span>קראו את התרחיש ובחרו את התשובה הנכונה</li>
+        <li><span>2</span>אם הבחירה שגויה, תוצג התשובה הנכונה</li>
+        <li><span>3</span>בסיום תקבלו ציון באחוזים</li>
+      </ul>
+      <p class="muted small">אפשר לצאת באמצע ולהמשיך מאותה נקודה בכניסה הבאה.</p>
+      <button class="btn primary block lg" id="btnStart">התחלת הלומדה</button>
+    </section>
+  </template>
+
+  <template id="tpl-quiz">
+    <section class="quiz">
+      <div class="progress-wrap">
+        <div class="progress-meta"><span class="q-counter"></span><span class="q-correct muted"></span></div>
+        <div class="progress" role="progressbar" aria-valuemin="0"><div class="progress-bar"></div></div>
+      </div>
+      <article class="card qcard">
+        <div class="context" hidden><span class="context-tag">תרחיש</span><p class="context-text"></p></div>
+        <h2 class="q-text"></h2>
+        <div class="options" role="radiogroup"></div>
+        <div class="feedback" hidden></div>
+        <div class="q-actions">
+          <button class="btn primary lg" id="btnCheck" disabled>בדיקת תשובה</button>
+          <button class="btn primary lg" id="btnNext" hidden>לשאלה הבאה</button>
+        </div>
+      </article>
+    </section>
+  </template>
+
+  <template id="tpl-result">
+    <section class="card result">
+      <div class="ring" aria-hidden="true">
+        <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg"/></svg>
+        <div class="ring-label"><b class="r-score"></b><span>ציון</span></div>
+      </div>
+      <h1 class="r-title"></h1>
+      <p class="r-sub muted"></p>
+      <div class="report-slot"></div>
+      <div class="r-actions">
+        <button class="btn ghost" id="btnPrint">הדפסה / שמירה כ-PDF</button>
+        <button class="btn primary" id="btnAgain">לדף הבית</button>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-admin">
+    <section class="card admin">
+      <div class="admin-head">
+        <h1>דוחות לומדה</h1>
+        <div class="admin-tools">
+          <input type="search" id="adminSearch" placeholder="חיפוש שם / מחלקה / מייל">
+          <select id="adminStatus"><option value="">כל הסטטוסים</option><option>הושלם</option><option>בתהליך</option></select>
+          <button class="btn primary" id="btnXlsx">הורדה לאקסל</button>
+          <button class="btn ghost" id="btnBackHome">חזרה</button>
+        </div>
+      </div>
+      <div class="stats"></div>
+      <div class="table-wrap">
+        <table class="admin-table">
+          <thead><tr><th>תאריך</th><th>שם</th><th>מחלקה</th><th>סטטוס</th><th>ציון</th><th></th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </section>
+  </template>
+
+  <template id="tpl-report">
+    <div class="report">
+      <aside class="report-side">
+        <h3>פרטי העובד</h3>
+        <dl>
+          <dt>שם</dt><dd class="rp-name"></dd>
+          <dt>מחלקה</dt><dd class="rp-dept"></dd>
+          <dt>אימייל</dt><dd class="rp-email" dir="ltr"></dd>
+          <dt>תאריך</dt><dd class="rp-date"></dd>
+          <dt>תשובות נכונות</dt><dd class="rp-count"></dd>
+          <dt>ציון</dt><dd class="rp-score"></dd>
+        </dl>
+      </aside>
+      <div class="report-main">
+        <h3>רשימת השאלות</h3>
+        <ol class="rp-list"></ol>
+      </div>
+    </div>
+  </template>
+
+  <dialog id="reportDialog">
+    <div class="dialog-head"><h2>דוח עובד</h2>
+      <div><button class="btn primary" id="dlgXlsx">הורדה לאקסל</button><button class="btn ghost" id="dlgPrint">הדפסה</button><button class="btn ghost" id="dlgClose">סגירה</button></div></div>
+    <div class="dialog-body"></div>
+  </dialog>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
