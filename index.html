@@ -12,6 +12,141 @@
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
+  <!-- ===================== איורים: עולם מניעת הזיהומים ===================== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <!-- יד פתוחה (בסיס לאיורי היגיינה וכפפות) -->
+      <g id="shape-hand">
+        <rect x="37" y="24" width="10" height="42" rx="5"/>
+        <rect x="49" y="17" width="10" height="47" rx="5"/>
+        <rect x="61" y="19" width="10" height="45" rx="5"/>
+        <rect x="73" y="28" width="9" height="38" rx="4.5"/>
+        <rect x="19" y="52" width="11" height="34" rx="5.5" transform="rotate(-38 24 69)"/>
+        <rect x="35" y="52" width="48" height="46" rx="17"/>
+      </g>
+    </defs>
+
+    <!-- היגיינת ידיים -->
+    <symbol id="ill-hands" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#e3f4fb"/>
+      <rect x="44" y="94" width="30" height="22" rx="5" fill="#0f6b66"/>
+      <use href="#shape-hand" fill="#f3c9a8"/>
+      <g fill="#fff" stroke="#5bb3e6" stroke-width="2">
+        <circle cx="30" cy="30" r="7"/><circle cx="92" cy="44" r="9"/><circle cx="96" cy="74" r="5"/><circle cx="22" cy="92" r="5"/>
+      </g>
+      <g fill="#3b8fc6">
+        <path d="M99 18c4 6 6 9 6 12a6 6 0 0 1-12 0c0-3 2-6 6-12z"/>
+        <path d="M17 44c3 5 5 7 5 10a5 5 0 0 1-10 0c0-3 2-5 5-10z"/>
+      </g>
+    </symbol>
+
+    <!-- כפפות -->
+    <symbol id="ill-gloves" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#ebeefe"/>
+      <rect x="40" y="90" width="38" height="24" rx="6" fill="#8fa6ee"/>
+      <use href="#shape-hand" fill="#5b7fd6"/>
+      <path d="M40 90h38" stroke="#3f5fb8" stroke-width="3"/>
+      <g fill="#ffffff" opacity=".35"><rect x="51" y="22" width="3" height="26" rx="1.5"/><rect x="63" y="24" width="3" height="24" rx="1.5"/></g>
+      <circle cx="94" cy="28" r="12" fill="#1a7f5a"/>
+      <path d="M88 28l4 4 8-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- מסכה כירורגית -->
+    <symbol id="ill-mask" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#e3f4fb"/>
+      <path d="M22 50c-12 0-14 26 0 28M98 50c12 0 14 26 0 28" fill="none" stroke="#7fb9dc" stroke-width="4" stroke-linecap="round"/>
+      <path d="M22 44c20-8 56-8 76 0v34c-20 12-56 12-76 0z" fill="#9fd3f0"/>
+      <g stroke="#ffffff" stroke-width="3" stroke-linecap="round" opacity=".9"><path d="M28 56h64"/><path d="M28 66h64"/><path d="M30 76h60"/></g>
+      <path d="M50 44c4-3 16-3 20 0" stroke="#5a98c0" stroke-width="3" fill="none" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- צנתר מרכזי + חבישה שקופה -->
+    <symbol id="ill-catheter" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#fdeef2"/>
+      <rect x="14" y="50" width="70" height="56" rx="14" fill="#f3c9a8"/>
+      <rect x="26" y="60" width="44" height="34" rx="6" fill="#ffffff" opacity=".75" stroke="#8fb0c4" stroke-width="2" stroke-dasharray="4 3"/>
+      <circle cx="40" cy="78" r="4" fill="#d9888a"/>
+      <path d="M40 78c14-4 24-16 36-30" fill="none" stroke="#0f6b66" stroke-width="5" stroke-linecap="round"/>
+      <path d="M76 48c6-8 12-12 22-14M76 48c10-2 16 0 24 6" fill="none" stroke="#0f6b66" stroke-width="4" stroke-linecap="round"/>
+      <rect x="96" y="27" width="12" height="12" rx="3" fill="#3b8fc6"/>
+      <rect x="98" y="50" width="12" height="12" rx="3" fill="#e0584f"/>
+      <rect x="30" y="97" width="30" height="9" rx="2" fill="#fff" stroke="#8fb0c4"/>
+      <path d="M34 101.5h22" stroke="#8fb0c4" stroke-width="1.5"/>
+    </symbol>
+
+    <!-- בקבוק תרבית דם -->
+    <symbol id="ill-culture" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#fdeef2"/>
+      <rect x="44" y="14" width="32" height="14" rx="4" fill="#7a5cc4"/>
+      <rect x="48" y="26" width="24" height="8" fill="#c9bfe8"/>
+      <path d="M40 38c0-4 4-6 8-6h24c4 0 8 2 8 6v62c0 6-4 10-10 10H50c-6 0-10-4-10-10z" fill="#eef3f6" stroke="#b9c9d3" stroke-width="2"/>
+      <path d="M42 76h36v24c0 5-3 8-8 8H50c-5 0-8-3-8-8z" fill="#c8323c"/>
+      <rect x="46" y="46" width="28" height="22" rx="3" fill="#fff" stroke="#d3dde3"/>
+      <g stroke="#9fb3bf" stroke-width="2" stroke-linecap="round"><path d="M50 52h20"/><path d="M50 58h14"/><path d="M50 63h17"/></g>
+      <circle cx="92" cy="34" r="10" fill="#fff" stroke="#3b8fc6" stroke-width="2"/>
+      <path d="M92 29v10M87 34h10" stroke="#3b8fc6" stroke-width="2.5" stroke-linecap="round"/>
+    </symbol>
+
+    <!-- שקית הזנה (TPN) -->
+    <symbol id="ill-ivbag" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#fff6dc"/>
+      <path d="M60 6v8" stroke="#8a9aa4" stroke-width="3" stroke-linecap="round"/>
+      <circle cx="60" cy="18" r="4" fill="none" stroke="#8a9aa4" stroke-width="2.5"/>
+      <path d="M36 26h48c4 0 6 2 6 6v38c0 10-8 16-16 16H46c-8 0-16-6-16-16V32c0-4 2-6 6-6z" fill="#fffaf0" stroke="#c9b36b" stroke-width="2.5"/>
+      <path d="M32 48h56v22c0 9-7 14-15 14H47c-8 0-15-5-15-14z" fill="#f6dc8a"/>
+      <g stroke="#b99a3c" stroke-width="2" stroke-linecap="round"><path d="M40 36h14"/><path d="M40 42h9"/></g>
+      <text x="66" y="68" font-family="Arial,sans-serif" font-size="11" font-weight="700" fill="#8a6d1c">TPN</text>
+      <rect x="55" y="86" width="10" height="8" rx="2" fill="#c9b36b"/>
+      <rect x="54" y="94" width="12" height="14" rx="3" fill="#e9f3f8" stroke="#8fb0c4" stroke-width="2"/>
+      <path d="M60 108v10" stroke="#0f6b66" stroke-width="3"/>
+    </symbol>
+
+    <!-- שדה סטרילי -->
+    <symbol id="ill-field" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#e3f4fb"/>
+      <path d="M16 44l60-14 30 34-60 16z" fill="#3a9bd6"/>
+      <path d="M16 44l60-14 30 34-60 16z" fill="none" stroke="#1f6fa3" stroke-width="2"/>
+      <g stroke="#ffffff" stroke-width="1.5" opacity=".35"><path d="M30 41l30 34"/><path d="M46 37l30 34"/><path d="M62 33l30 34"/></g>
+      <rect x="44" y="46" width="28" height="7" rx="3.5" fill="#e6ebef" transform="rotate(-14 58 50)"/>
+      <rect x="40" y="58" width="22" height="6" rx="3" fill="#cfd8de" transform="rotate(-14 51 61)"/>
+      <circle cx="80" cy="56" r="6" fill="#fff" stroke="#9fb3bf" stroke-width="2"/>
+      <path d="M30 92c10-6 22-6 32 0" fill="none" stroke="#1a7f5a" stroke-width="4" stroke-linecap="round"/>
+      <circle cx="96" cy="94" r="12" fill="#1a7f5a"/>
+      <path d="M90 94l4 4 8-8" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- מגן מניעת זיהומים -->
+    <symbol id="ill-shield" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#dff3f1"/>
+      <path d="M60 14l34 12v24c0 26-15 44-34 54C41 94 26 76 26 50V26z" fill="#0f6b66"/>
+      <path d="M60 22l27 9v19c0 21-12 36-27 44V22z" fill="#13857e"/>
+      <path d="M44 58l11 11 22-24" fill="none" stroke="#fff" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+
+    <!-- חיידק -->
+    <symbol id="ill-microbe" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#eef7e3"/>
+      <g stroke="#6aa84f" stroke-width="4" stroke-linecap="round">
+        <path d="M60 30v-10M60 94v10M28 62H18M92 62h10M37 39l-7-7M83 85l7 7M83 39l7-7M37 85l-7 7"/>
+      </g>
+      <g fill="#6aa84f"><circle cx="60" cy="19" r="4"/><circle cx="60" cy="105" r="4"/><circle cx="17" cy="62" r="4"/><circle cx="103" cy="62" r="4"/></g>
+      <circle cx="60" cy="62" r="30" fill="#8bc34a"/>
+      <g fill="#5d8f2f"><circle cx="50" cy="54" r="6"/><circle cx="70" cy="70" r="7"/><circle cx="68" cy="50" r="3.5"/><circle cx="50" cy="74" r="3"/></g>
+      <path d="M20 104L100 22" stroke="#e0584f" stroke-width="8" stroke-linecap="round" opacity=".9"/>
+    </symbol>
+
+    <!-- גביע / הישג לסיום -->
+    <symbol id="ill-trophy" viewBox="0 0 120 120">
+      <circle cx="60" cy="62" r="56" fill="#fff6dc"/>
+      <path d="M38 22h44v18c0 14-10 24-22 24S38 54 38 40z" fill="#f2b632"/>
+      <path d="M38 28H26c0 14 6 20 14 20M82 28h12c0 14-6 20-14 20" fill="none" stroke="#f2b632" stroke-width="5"/>
+      <rect x="54" y="62" width="12" height="16" fill="#d99a1e"/>
+      <rect x="40" y="78" width="40" height="12" rx="3" fill="#0f6b66"/>
+      <rect x="34" y="90" width="52" height="10" rx="3" fill="#0b5753"/>
+      <path d="M52 36l5 5 11-12" fill="none" stroke="#fff" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+    </symbol>
+  </svg>
+
   <!-- רקע גרפי עדין: מוטיבים של מניעת זיהומים -->
   <svg class="bg-art" aria-hidden="true" viewBox="0 0 1200 900" preserveAspectRatio="xMidYMid slice">
     <defs>
@@ -63,7 +198,11 @@
   <template id="tpl-login">
     <section class="card auth">
       <div class="auth-hero">
-        <svg viewBox="0 0 64 64" class="hero-icon" aria-hidden="true"><path d="M32 4l22 8v14c0 15-10 27-22 33C20 53 10 41 10 26V12z" fill="var(--primary-soft)"/><path d="M22 32l7 7 14-15" fill="none" stroke="var(--primary)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <div class="hero-trio" aria-hidden="true">
+          <svg class="ill"><use href="#ill-hands"/></svg>
+          <svg class="ill lg"><use href="#ill-shield"/></svg>
+          <svg class="ill"><use href="#ill-microbe"/></svg>
+        </div>
         <h1>ברוכים הבאים</h1>
         <p class="muted">התחברו עם כתובת המייל הארגונית כדי להתחיל את הלומדה</p>
       </div>
@@ -100,6 +239,7 @@
 
   <template id="tpl-verify">
     <section class="card auth">
+      <svg class="ill sm float" aria-hidden="true"><use href="#ill-shield"/></svg>
       <h1 class="v-title">אימות כתובת מייל</h1>
       <p class="muted">שלחנו קוד בן 6 ספרות אל <b dir="ltr" class="v-email"></b>. הקוד בתוקף ל-30 דקות. אם לא הגיע, בדקו גם בתיבת דואר הזבל.</p>
       <form id="formVerify" novalidate>
@@ -132,6 +272,7 @@
 
   <template id="tpl-dept">
     <section class="card auth">
+      <svg class="ill sm float" aria-hidden="true"><use href="#ill-shield"/></svg>
       <h1>שלום <span class="d-name"></span>, בחירת מחלקה</h1>
       <p class="muted">המייל אומת בהצלחה. בחרו את האגף ואז את המחלקה שלכם. הבחירה נעשית פעם אחת, ושינוי בהמשך נעשה דרך מנהל הלומדה.</p>
       <form novalidate>
@@ -147,9 +288,16 @@
     <section class="card home">
       <h1>שלום <span class="h-name"></span></h1>
       <p>הלומדה מבוססת על תרחיש קליני מתגלגל של מטופל עם צנתר ורידי מרכזי. השאלות מוצגות ברצף קבוע, זו אחר זו.</p>
+      <div class="topic-strip" aria-label="נושאי הלומדה">
+        <figure><svg class="ill" aria-hidden="true"><use href="#ill-hands"/></svg><figcaption>היגיינת ידיים</figcaption></figure>
+        <figure><svg class="ill" aria-hidden="true"><use href="#ill-culture"/></svg><figcaption>תרבית דם</figcaption></figure>
+        <figure><svg class="ill" aria-hidden="true"><use href="#ill-catheter"/></svg><figcaption>חבישת צנתר מרכזי</figcaption></figure>
+        <figure><svg class="ill" aria-hidden="true"><use href="#ill-ivbag"/></svg><figcaption>הכנת TPN</figcaption></figure>
+        <figure><svg class="ill" aria-hidden="true"><use href="#ill-mask"/></svg><figcaption>מיגון ואספטיקה</figcaption></figure>
+      </div>
       <ul class="steps">
-        <li><span>1</span>קראו את התרחיש ובחרו את התשובה הנכונה</li>
-        <li><span>2</span>אם הבחירה שגויה, תוצג התשובה הנכונה</li>
+        <li><span>1</span>קראו את התרחיש, בחרו תשובה ולחצו "המשך"</li>
+        <li><span>2</span>התשובה הנכונה תוצג ל-3 שניות, ואז עוברים אוטומטית לשאלה הבאה</li>
         <li><span>3</span>בסיום תקבלו ציון באחוזים</li>
       </ul>
       <p class="muted small">אפשר לצאת באמצע ולהמשיך מאותה נקודה בכניסה הבאה.</p>
@@ -165,12 +313,15 @@
       </div>
       <article class="card qcard">
         <div class="context" hidden><span class="context-tag">תרחיש</span><p class="context-text"></p></div>
-        <h2 class="q-text"></h2>
+        <div class="q-head"><h2 class="q-text"></h2><div class="q-illus" aria-hidden="true"></div></div>
         <div class="options" role="radiogroup"></div>
         <div class="feedback" hidden></div>
         <div class="q-actions">
-          <button class="btn primary lg" id="btnCheck" disabled>בדיקת תשובה</button>
-          <button class="btn primary lg" id="btnNext" hidden>לשאלה הבאה</button>
+          <button class="btn primary lg" id="btnNext" disabled>המשך</button>
+        </div>
+        <div class="auto-next" hidden aria-live="polite">
+          <div class="auto-row"><span class="auto-label"></span><button type="button" class="btn ghost auto-hold">עצירה לקריאה</button></div>
+          <div class="auto-bar"><i></i></div>
         </div>
       </article>
     </section>
@@ -178,6 +329,7 @@
 
   <template id="tpl-result">
     <section class="card result">
+      <div class="r-illus" aria-hidden="true"></div>
       <div class="ring" aria-hidden="true">
         <svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="52" class="ring-bg"/><circle cx="60" cy="60" r="52" class="ring-fg"/></svg>
         <div class="ring-label"><b class="r-score"></b><span>ציון</span></div>
@@ -197,46 +349,51 @@
       <div class="admin-head">
         <h1>דוחות לומדה</h1>
         <div class="admin-tools">
-          <button class="btn primary" id="btnXlsx">הורדה לאקסל</button>
+          <button class="btn primary" id="btnXlsx">הורדה לאקסל…</button>
           <button class="btn ghost" id="btnBackHome">חזרה</button>
         </div>
       </div>
       <div class="tabs" role="tablist">
         <button role="tab" class="tab" data-tab="people" aria-selected="true">עובדים</button>
-        <button role="tab" class="tab" data-tab="depts" aria-selected="false">ציון מחלקתי</button>
+        <button role="tab" class="tab" data-tab="depts" aria-selected="false">השוואת מחלקות</button>
+        <button role="tab" class="tab" data-tab="questions" aria-selected="false">ניתוח שאלות</button>
       </div>
 
+      <!-- ===== עובדים ===== -->
       <div class="panel" data-panel="people">
         <div class="filters">
           <input type="search" id="adminSearch" placeholder="חיפוש שם / מחלקה / מייל">
           <select id="adminDept"><option value="">כל המחלקות</option></select>
-          <select id="adminStatus"><option value="">כל הסטטוסים</option><option>הושלם</option><option>בתהליך</option></select>
+          <select id="adminStatus"><option value="">כל הסטטוסים</option><option>הושלם</option><option>בתהליך</option><option value="fast">⚡ מענה מהיר חשוד</option></select>
         </div>
         <div class="stats"></div>
         <div class="table-wrap">
           <table class="admin-table">
-            <thead><tr><th>תאריך</th><th>שם</th><th>מחלקה</th><th>סטטוס</th><th>ציון</th><th></th></tr></thead>
+            <thead><tr><th>תאריך</th><th>שם</th><th>מחלקה</th><th>סטטוס</th><th>ציון</th><th>זמן פעיל</th><th></th></tr></thead>
             <tbody></tbody>
           </table>
         </div>
       </div>
 
+      <!-- ===== השוואת מחלקות ===== -->
       <div class="panel" data-panel="depts" hidden>
         <div class="filters">
           <label class="inline">אגף
             <select id="wingFilter"><option value="">כל האגפים</option></select></label>
           <label class="inline">מחלקה להשוואה
             <select id="deptFocus"></select></label>
+          <div class="seg" role="radiogroup" aria-label="מדד להשוואה">
+            <button type="button" role="radio" data-metric="avg" aria-checked="true">ציון ממוצע</button>
+            <button type="button" role="radio" data-metric="rate" aria-checked="false">שיעור השלמה</button>
+          </div>
         </div>
         <div class="stats dept-stats"></div>
-        <figure class="dchart">
+        <figure class="chart-card">
           <figcaption>
-            <b>ציון ממוצע לפי מחלקה</b>
-            <span class="muted small">לכל עובד נספר הניסיון האחרון שהושלם · הקו המקווקו = ממוצע בית החולים</span>
+            <b class="dchart-title">ציון ממוצע לפי מחלקה</b>
+            <span class="muted small dchart-note"></span>
           </figcaption>
-          <div class="dchart-rows"></div>
-          <div class="dchart-axis" aria-hidden="true"><span></span><span class="ticks"><span>0%</span><span>50%</span><span>100%</span></span><span></span></div>
-          <div class="dtip" role="tooltip" hidden></div>
+          <div class="vchart" id="deptChart"></div>
         </figure>
         <div class="table-wrap">
           <table class="admin-table dept-table">
@@ -245,8 +402,55 @@
           </table>
         </div>
       </div>
+
+      <!-- ===== ניתוח שאלות ===== -->
+      <div class="panel" data-panel="questions" hidden>
+        <div class="filters">
+          <label class="inline">אגף
+            <select id="qWing"><option value="">כל האגפים</option></select></label>
+          <label class="inline">מחלקה
+            <select id="qDept"><option value="">כל המחלקות</option></select></label>
+          <div class="seg" role="radiogroup" aria-label="מדד לשאלות" id="qMetric">
+            <button type="button" role="radio" data-metric="err" aria-checked="true">שיעור טעויות</button>
+            <button type="button" role="radio" data-metric="time" aria-checked="false">זמן מענה</button>
+          </div>
+        </div>
+        <div class="stats q-stats"></div>
+        <div class="recs q-recs"></div>
+        <figure class="chart-card">
+          <figcaption>
+            <b class="qchart-title">שיעור טעויות לפי שאלה</b>
+            <span class="muted small qchart-note">ממוין מהשאלה שטעו בה הכי הרבה · לכל עובד נספר הניסיון האחרון · לחצו על שאלה לניתוח מעמיק</span>
+          </figcaption>
+          <div class="hbars" id="qChart"></div>
+        </figure>
+        <section class="drill" id="qDrill" hidden></section>
+      </div>
     </section>
   </template>
+
+  <dialog id="exportDialog">
+    <form method="dialog" class="export-form">
+      <div class="dialog-head"><h2>הורדה לאקסל</h2></div>
+      <div class="dialog-body">
+        <p class="muted small">הייצוא כולל את העובדים לפי הסינון בלשונית "עובדים". כל הגיליונות בקובץ מוצגים מימין לשמאל.</p>
+        <fieldset>
+          <legend>אילו גיליונות לכלול</legend>
+          <label class="check"><input type="checkbox" name="summary" checked> <span><b>סיכום לפי עובד</b><small>שורה לכל ניסיון: פרטים, סטטוס, ציון</small></span></label>
+          <label class="check"><input type="checkbox" name="depts" checked> <span><b>השוואת מחלקות ואגפים</b><small>ממוצע, דירוג, הפרש מהממוצע, שיעור השלמה</small></span></label>
+          <label class="check"><input type="checkbox" name="answers"> <span><b>דוח מורחב – כל התשובות</b><small>שורה לכל תשובה של כל עובד: השאלה, התשובה שנבחרה, התשובה הנכונה ונכון/לא נכון</small></span></label>
+          <label class="check"><input type="checkbox" name="matrix"> <span><b>טבלת עובדים × שאלות</b><small>שורה לכל עובד ועמודה לכל שאלה</small></span></label>
+          <label class="check sub"><input type="checkbox" name="matrixChosen"> <span>בטבלה להציג את התשובה שנבחרה (במקום נכון/לא נכון)</span></label>
+          <label class="check"><input type="checkbox" name="analysis"> <span><b>ניתוח שאלות</b><small>שיעור טעויות, הטעות הנפוצה והתפלגות התשובות לכל שאלה</small></span></label>
+          <label class="check"><input type="checkbox" name="questions"> <span><b>נוסח השאלות והתשובות</b><small>כולל התשובה הנכונה וההסבר</small></span></label>
+        </fieldset>
+      </div>
+      <div class="dialog-foot">
+        <button class="btn ghost" value="cancel" formnovalidate>ביטול</button>
+        <button class="btn primary" value="ok" id="exportGo">הורדה</button>
+      </div>
+    </form>
+  </dialog>
 
   <template id="tpl-report">
     <div class="report">
@@ -259,6 +463,7 @@
           <dt>תאריך</dt><dd class="rp-date"></dd>
           <dt>תשובות נכונות</dt><dd class="rp-count"></dd>
           <dt>ציון</dt><dd class="rp-score"></dd>
+          <dt>זמן פעיל</dt><dd class="rp-time"></dd>
         </dl>
       </aside>
       <div class="report-main">
