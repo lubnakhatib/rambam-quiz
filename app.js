@@ -123,8 +123,10 @@
     state.user = res.user;
     state.isAdmin = res.isAdmin;
     updateHeader();
-    render('home');
+    render(landing());
   }
+
+  function landing() { return state.user && !state.user.department ? 'dept' : 'home'; }
 
   /* ============================ screens ============================ */
 
@@ -152,23 +154,9 @@
     text(w, '.domain', '@' + cfg.domain);
     var f = w.querySelector('#formRegister');
     f.email.placeholder = 'name@' + cfg.domain;
-    var slot = w.querySelector('.dept-slot');
-    var dept;
-    if (cfg.departments && cfg.departments.length) {
-      dept = document.createElement('select');
-      dept.innerHTML = '<option value="">בחרו מחלקה</option>' + cfg.departments.map(function (d) {
-        return '<option>' + d.replace(/</g, '&lt;') + '</option>';
-      }).join('');
-    } else {
-      dept = document.createElement('input');
-      dept.maxLength = 80;
-    }
-    dept.name = 'department';
-    dept.required = true;
-    slot.replaceWith(dept);
 
     onSubmit(f, function (d) {
-      if (!d.firstName || !d.lastName || !d.department) throw new Error('יש למלא את כל השדות');
+      if (!d.firstName || !d.lastName) throw new Error('יש למלא את כל השדות');
       // בדיקת הדומיין נעשית בשרת (מנהלים מורשים להירשם גם מחוץ לדומיין)
       if (!validPassword(d.password)) throw new Error('הסיסמה חייבת להכיל לפחות 8 תווים, כולל אות באנגלית וספרה');
       if (d.password !== d.password2) throw new Error('הסיסמאות אינן תואמות');
@@ -225,6 +213,46 @@
     });
   };
 
+  /** בחירת מחלקה מרשימה סגורה – מוצג פעם אחת, אחרי אימות המייל */
+  screens.dept = function () {
+    loading();
+    api('departments').then(function (res) {
+      var w = mount(tpl('dept'));
+      text(w, '.d-name', state.user.firstName);
+      var wingSel = w.querySelector('select[name=wing]');
+      var sel = w.querySelector('select[name=department]');
+      if (!res.departments.length) {
+        w.querySelector('form').hidden = true;
+        w.querySelector('.d-empty').hidden = false;
+        return;
+      }
+      var wings = [];
+      res.departments.forEach(function (d) { if (wings.indexOf(d.wing) < 0) wings.push(d.wing); });
+      wings.forEach(function (x) { var o = document.createElement('option'); o.textContent = x; wingSel.appendChild(o); });
+      function fillDepts() {
+        sel.innerHTML = '<option value="">' + (wingSel.value ? 'בחרו מחלקה…' : 'קודם בחרו אגף') + '</option>';
+        sel.disabled = !wingSel.value;
+        res.departments.filter(function (d) { return d.wing === wingSel.value; }).forEach(function (d) {
+          var o = document.createElement('option');
+          o.textContent = d.name;
+          sel.appendChild(o);
+        });
+      }
+      wingSel.addEventListener('change', fillDepts);
+      if (wings.length === 1) wingSel.value = wings[0];
+      fillDepts();
+      onSubmit(w.querySelector('form'), function (d) {
+        if (!d.wing) throw new Error('יש לבחור אגף');
+        if (!d.department) throw new Error('יש לבחור מחלקה מהרשימה');
+        return api('setDepartment', { department: d.department }).then(function (r) {
+          state.user = r.user;
+          toast('המחלקה נשמרה');
+          render('home');
+        });
+      });
+    }, function (err) { toast(err.message, true); });
+  };
+
   screens.home = function () {
     var w = mount(tpl('home'));
     text(w, '.h-name', state.user.firstName);
@@ -238,7 +266,7 @@
       showQuestion();
     }, function (err) {
       toast(err.message, true);
-      render('home');
+      render(err.code === 'NEED_DEPT' ? 'dept' : 'home');
     });
   }
 
@@ -365,25 +393,102 @@
     return node;
   }
 
+  /** ציון מחלקתי: לכל עובד נספר הניסיון האחרון שהושלם */
+  function deptStats(attempts, departments) {
+    var latest = {};
+    attempts.forEach(function (a) { // הניסיונות מגיעים מהחדש לישן
+      if (a.status === 'הושלם' && a.score !== '' && !latest[a.email]) latest[a.email] = a;
+    });
+    var by = {};
+    (departments || []).forEach(function (d) { by[d.name] = { name: d.name, wing: d.wing || '', registered: d.registered, scores: [] }; });
+    Object.keys(latest).forEach(function (e) {
+      var a = latest[e];
+      var d = by[a.department] = by[a.department] || { name: a.department, wing: 'לא ברשימה', registered: 0, scores: [] };
+      d.scores.push(Number(a.score));
+    });
+    var all = [];
+    var list = Object.keys(by).map(function (k) {
+      var d = by[k];
+      all = all.concat(d.scores);
+      d.done = d.scores.length;
+      d.avg = d.done ? Math.round(d.scores.reduce(function (x, y) { return x + y; }, 0) / d.done) : null;
+      d.min = d.done ? Math.min.apply(null, d.scores) : null;
+      d.max = d.done ? Math.max.apply(null, d.scores) : null;
+      d.registered = Math.max(d.registered, d.done);
+      d.rate = d.registered ? Math.round(d.done / d.registered * 100) : null;
+      return d;
+    });
+    var overall = all.length ? Math.round(all.reduce(function (x, y) { return x + y; }, 0) / all.length) : null;
+    list.sort(function (x, y) {
+      if (x.avg == null) return y.avg == null ? x.name.localeCompare(y.name, 'he') : 1;
+      if (y.avg == null) return -1;
+      return y.avg - x.avg || x.name.localeCompare(y.name, 'he');
+    });
+    var rank = 0;
+    list.forEach(function (d) {
+      d.rank = d.avg == null ? null : ++rank;
+      d.diff = d.avg == null || overall == null ? null : d.avg - overall;
+    });
+    var wings = {};
+    list.forEach(function (d) {
+      var g = wings[d.wing] = wings[d.wing] || { name: d.wing, scores: [], registered: 0 };
+      g.scores = g.scores.concat(d.scores);
+      g.registered += d.registered;
+    });
+    var wingList = Object.keys(wings).sort(function (x, y) { return x.localeCompare(y, 'he'); }).map(function (k) {
+      var g = wings[k];
+      g.done = g.scores.length;
+      g.avg = g.done ? Math.round(g.scores.reduce(function (x, y) { return x + y; }, 0) / g.done) : null;
+      g.diff = g.avg == null || overall == null ? null : g.avg - overall;
+      return g;
+    });
+    return { list: list, wings: wingList, overall: overall, ranked: rank, employees: all.length };
+  }
+
+  // מספרים עם סימן/טווח בתוך טקסט עברי: עוטפים בבידוד LTR (U+2066…U+2069) כדי שיוצגו "+9" ולא "9+"
+  function ltr(v) { return '⁦' + v + '⁩'; }
+  function signed(n) { return n == null ? '—' : ltr((n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n)); }
+  function range(d) { return d.avg == null ? '—' : ltr(d.min + '–' + d.max + '%'); }
+
+  function esc(s) { return String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+
   screens.admin = function () {
     loading();
     api('adminList').then(function (res) {
       var w = mount(tpl('admin'));
       var all = res.attempts;
+      state.adminDepts = res.departments || [];
       if (res.missingKeys && res.missingKeys.length) {
         var warn = document.createElement('p');
         warn.className = 'warn';
         warn.textContent = 'שימו לב: ' + res.missingKeys.length + ' שאלות עדיין בלי תשובה נכונה ולכן לא מוצגות לעובדים (שאלות ' + res.missingKeys.join(', ') + ').';
         w.querySelector('.admin-head').after(warn);
       }
-      var tbody = w.querySelector('tbody');
+
+      // ---- לשוניות
+      var tabs = w.querySelectorAll('.tab');
+      tabs.forEach(function (t) {
+        t.addEventListener('click', function () {
+          tabs.forEach(function (x) { x.setAttribute('aria-selected', x === t ? 'true' : 'false'); });
+          w.querySelectorAll('.panel').forEach(function (p) { p.hidden = p.dataset.panel !== t.dataset.tab; });
+          store('set', 'rmcQuizAdminTab', t.dataset.tab);
+        });
+      });
+
+      // ---- עובדים
+      var tbody = w.querySelector('.panel[data-panel=people] tbody');
       var search = w.querySelector('#adminSearch');
       var status = w.querySelector('#adminStatus');
+      var deptSel = w.querySelector('#adminDept');
+      var deptNames = state.adminDepts.map(function (d) { return d.name; });
+      all.forEach(function (a) { if (a.department && deptNames.indexOf(a.department) < 0) deptNames.push(a.department); });
+      deptNames.forEach(function (n) { var o = document.createElement('option'); o.textContent = n; deptSel.appendChild(o); });
 
       function filtered() {
         var s = search.value.trim().toLowerCase();
         return all.filter(function (a) {
           if (status.value && a.status !== status.value) return false;
+          if (deptSel.value && a.department !== deptSel.value) return false;
           return !s || [a.firstName, a.lastName, a.department, a.email].join(' ').toLowerCase().indexOf(s) >= 0;
         });
       }
@@ -394,7 +499,7 @@
         var avg = done.length ? Math.round(done.reduce(function (s, a) { return s + Number(a.score); }, 0) / done.length) : 0;
         var people = {};
         rows.forEach(function (a) { people[a.email] = 1; });
-        w.querySelector('.stats').innerHTML =
+        w.querySelector('.panel[data-panel=people] .stats').innerHTML =
           stat(Object.keys(people).length, 'עובדים') + stat(done.length, 'שאלונים שהושלמו') +
           stat(rows.length - done.length, 'בתהליך') + stat(done.length ? avg + '%' : '—', 'ציון ממוצע');
         tbody.innerHTML = '';
@@ -413,16 +518,128 @@
           tbody.appendChild(tr);
         });
       }
-
       search.addEventListener('input', draw);
       status.addEventListener('change', draw);
+      deptSel.addEventListener('change', draw);
+      draw();
+
+      // ---- ציון מחלקתי
+      var ds = deptStats(all, state.adminDepts);
+      var focus = w.querySelector('#deptFocus');
+      var wingF = w.querySelector('#wingFilter');
+      ds.wings.forEach(function (g) { var o = document.createElement('option'); o.textContent = g.name; wingF.appendChild(o); });
+      function fillFocus() {
+        var keep = focus.value;
+        focus.innerHTML = '<option value="">כל המחלקות</option>';
+        ds.list.filter(function (d) { return !wingF.value || d.wing === wingF.value; }).forEach(function (d) {
+          var o = document.createElement('option'); o.textContent = d.name; focus.appendChild(o);
+        });
+        focus.value = keep;
+        if (focus.value !== keep) focus.value = '';
+      }
+      fillFocus();
+      wingF.addEventListener('change', function () { fillFocus(); store('set', 'rmcQuizDeptFocus', focus.value); drawDepts(); });
+      var savedFocus = store('get', 'rmcQuizDeptFocus');
+      if (savedFocus && ds.list.some(function (d) { return d.name === savedFocus; })) focus.value = savedFocus;
+      focus.addEventListener('change', function () { store('set', 'rmcQuizDeptFocus', focus.value); drawDepts(); });
+
+      var tip = w.querySelector('.dtip');
+      var fig = w.querySelector('.dchart');
+      function showTip(e, d, el) {
+        tip.innerHTML = '<b></b><span></span><span></span><span></span>';
+        tip.children[0].textContent = d.name + ' · ' + d.wing;
+        tip.children[1].textContent = 'ציון ממוצע: ' + d.avg + '% (' + signed(d.diff) + ' מהממוצע)';
+        tip.children[2].textContent = 'השלימו: ' + d.done + ' מתוך ' + d.registered + ' רשומים';
+        tip.children[3].textContent = 'טווח: ' + range(d) + ' · דירוג ' + d.rank + ' מתוך ' + ds.ranked;
+        tip.hidden = false;
+        var fr = fig.getBoundingClientRect();
+        var x, y;
+        if (e) { x = e.clientX - fr.left; y = e.clientY - fr.top; }
+        else { var r = el.getBoundingClientRect(); x = r.left - fr.left + r.width / 2; y = r.top - fr.top; }
+        var tw = tip.offsetWidth;
+        tip.style.left = Math.max(0, Math.min(fr.width - tw, x - tw / 2)) + 'px';
+        tip.style.top = (y - tip.offsetHeight - 12) + 'px';
+      }
+      function hideTip() { tip.hidden = true; }
+
+      function pick(name) { if (focus.value !== name) { wingF.value = ''; fillFocus(); } focus.value = name; store('set', 'rmcQuizDeptFocus', name); drawDepts(); }
+
+      function drawDepts() {
+        var f = ds.list.filter(function (d) { return d.name === focus.value; })[0];
+        var box = w.querySelector('.dept-stats');
+        if (f) {
+          box.innerHTML = stat(f.avg == null ? '—' : f.avg + '%', 'ציון ממוצע – ' + esc(f.name)) +
+            stat(ds.overall == null ? '—' : ds.overall + '%', 'ממוצע בית החולים') +
+            stat(signed(f.diff), 'הפרש מהממוצע (נקודות)') +
+            stat(f.rank ? f.rank + ' מתוך ' + ds.ranked : '—', 'דירוג בין המחלקות') +
+            stat(f.done + ' מתוך ' + f.registered, 'השלימו מתוך הרשומים');
+        } else {
+          box.innerHTML = stat(ds.overall == null ? '—' : ds.overall + '%', 'ממוצע בית החולים') +
+            ds.wings.filter(function (g) { return !wingF.value || g.name === wingF.value; }).map(function (g) {
+              return stat(g.avg == null ? '—' : g.avg + '%', 'ממוצע ' + esc(g.name) + (g.diff == null ? '' : ' (' + signed(g.diff) + ')'));
+            }).join('') +
+            stat(ds.employees, 'עובדים שהשלימו');
+        }
+        if (f) {
+          var fw = ds.wings.filter(function (g) { return g.name === f.wing; })[0];
+          if (fw) box.innerHTML += stat(fw.avg == null ? '—' : fw.avg + '%', 'ממוצע ' + esc(fw.name));
+        }
+
+        var rowsEl = w.querySelector('.dchart-rows');
+        rowsEl.innerHTML = '';
+        var inWing = function (d) { return !wingF.value || d.wing === wingF.value; };
+        var withData = ds.list.filter(function (d) { return d.avg != null && inWing(d); });
+        w.querySelector('.dchart-axis').hidden = !withData.length;
+        if (!withData.length) rowsEl.innerHTML = '<p class="muted">עדיין אין שאלונים שהושלמו.</p>';
+        withData.forEach(function (d) {
+          var row = document.createElement('div');
+          row.className = 'drow' + (d.name === focus.value ? ' focus' : '') + (focus.value && d.name !== focus.value ? ' dim' : '');
+          row.tabIndex = 0;
+          row.setAttribute('role', 'button');
+          row.innerHTML = '<span class="dname"></span><span class="dtrack"><span class="dbar"></span>' +
+            (ds.overall != null ? '<span class="dmean" style="inset-inline-start:' + ds.overall + '%"></span>' : '') +
+            '</span><span class="dval"></span>';
+          row.querySelector('.dname').innerHTML = '<span></span><small></small>';
+          row.querySelector('.dname span').textContent = d.name;
+          row.querySelector('.dname small').textContent = d.wing;
+          row.querySelector('.dbar').style.width = d.avg + '%';
+          row.querySelector('.dval').textContent = d.avg + '%';
+          row.setAttribute('aria-label', d.name + ': ציון ממוצע ' + d.avg + '%, ' + d.done + ' עובדים');
+          row.addEventListener('click', function () { pick(d.name); });
+          row.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pick(d.name); } });
+          row.addEventListener('mousemove', function (e) { showTip(e, d); });
+          row.addEventListener('mouseleave', hideTip);
+          row.addEventListener('focus', function () { showTip(null, d, row); });
+          row.addEventListener('blur', hideTip);
+          rowsEl.appendChild(row);
+        });
+
+        var tb = w.querySelector('.dept-table tbody');
+        tb.innerHTML = '';
+        if (!ds.list.length) tb.innerHTML = '<tr><td colspan="9" class="muted">לא הוגדרו מחלקות</td></tr>';
+        ds.list.filter(inWing).forEach(function (d) {
+          var tr = document.createElement('tr');
+          if (d.name === focus.value) tr.className = 'focus';
+          [d.rank || '—', d.name, d.wing, d.avg == null ? '—' : d.avg + '%', signed(d.diff), d.done, d.registered,
+            d.rate == null ? '—' : d.rate + '%', range(d)].forEach(function (v) {
+            var td = document.createElement('td');
+            td.textContent = v;
+            tr.appendChild(td);
+          });
+          tb.appendChild(tr);
+        });
+      }
+      drawDepts();
+
+      var savedTab = store('get', 'rmcQuizAdminTab');
+      if (savedTab) { var st = w.querySelector('.tab[data-tab="' + savedTab + '"]'); if (st) st.click(); }
+
       w.querySelector('#btnBackHome').addEventListener('click', function () { render('home'); });
       w.querySelector('#btnXlsx').addEventListener('click', function (e) {
         var ids = {};
         filtered().forEach(function (a) { ids[a.id] = 1; });
         exportExcel(function (a) { return ids[a.id]; }, e.currentTarget);
       });
-      draw();
     }, function (err) { toast(err.message, true); render('home'); });
   };
 
@@ -477,8 +694,10 @@
     Promise.all([loadXlsx(), api('adminExport')]).then(function (r) {
       var data = r[1];
       var rows = data.attempts.filter(filter);
-      var id = function (a) { return [fmtDate(a.end || a.start), a.firstName, a.lastName, a.department, a.email]; };
-      var idHead = ['תאריך', 'שם פרטי', 'שם משפחה', 'מחלקה', 'אימייל'];
+      var wingOf = {};
+      (state.adminDepts || []).forEach(function (d) { wingOf[d.name] = d.wing; });
+      var id = function (a) { return [fmtDate(a.end || a.start), a.firstName, a.lastName, wingOf[a.department] || '', a.department, a.email]; };
+      var idHead = ['תאריך', 'שם פרטי', 'שם משפחה', 'אגף', 'מחלקה', 'אימייל'];
 
       var summary = [idHead.concat(['סטטוס', 'נענו', 'תשובות נכונות', 'סה"כ שאלות', 'ציון %'])].concat(rows.map(function (a) {
         return id(a).concat([a.status, a.answered, a.correct, a.total, a.score === '' ? '' : Number(a.score)]);
@@ -489,11 +708,23 @@
           return x ? (x.ok ? 'נכון' : 'לא נכון') : '';
         }));
       }));
+      var ds = deptStats(data.attempts, state.adminDepts);
+      var deptRows = [['דירוג', 'מחלקה', 'אגף', 'ציון ממוצע %', 'הפרש מממוצע בית החולים', 'השלימו', 'רשומים', 'שיעור השלמה %', 'ציון מינימלי', 'ציון מקסימלי']]
+        .concat(ds.list.map(function (d) {
+          return [d.rank || '', d.name, d.wing, d.avg == null ? '' : d.avg, d.diff == null ? '' : d.diff, d.done, d.registered,
+            d.rate == null ? '' : d.rate, d.min == null ? '' : d.min, d.max == null ? '' : d.max];
+        }))
+        .concat([[], ['', 'אגף', '', 'ציון ממוצע %', 'הפרש מממוצע בית החולים', 'השלימו', 'רשומים']])
+        .concat(ds.wings.map(function (g) {
+          return ['', g.name, '', g.avg == null ? '' : g.avg, g.diff == null ? '' : g.diff, g.done, g.registered];
+        }))
+        .concat([[], ['', 'ממוצע בית החולים', '', ds.overall == null ? '' : ds.overall], ['', 'לכל עובד נספר הניסיון האחרון שהושלם']]);
       var qs = [['מס׳', 'שאלה']].concat(data.questions.map(function (q) { return [q.num, q.text]; }));
 
       var wb = XLSX.utils.book_new();
-      XLSX.utils.book_append_sheet(wb, sheet(summary, [16, 12, 14, 18, 28, 10, 7, 13, 11, 8]), 'סיכום');
-      XLSX.utils.book_append_sheet(wb, sheet(detail, [16, 12, 14, 18, 28, 8].concat(data.questions.map(function () { return 9; }))), 'פירוט לפי שאלה');
+      XLSX.utils.book_append_sheet(wb, sheet(summary, [16, 12, 14, 12, 18, 28, 10, 7, 13, 11, 8]), 'סיכום');
+      XLSX.utils.book_append_sheet(wb, sheet(detail, [16, 12, 14, 12, 18, 28, 8].concat(data.questions.map(function () { return 9; }))), 'פירוט לפי שאלה');
+      XLSX.utils.book_append_sheet(wb, sheet(deptRows, [7, 26, 14, 13, 22, 9, 9, 15, 12, 12]), 'ציון מחלקתי');
       XLSX.utils.book_append_sheet(wb, sheet(qs, [6, 110]), 'שאלות');
       saveWorkbook(wb, 'דוח לומדה ' + stamp());
     }).catch(function (err) { toast(err.message, true); }).then(function () { busy(btn, false); });
@@ -552,7 +783,7 @@
         state.user = res.user;
         state.isAdmin = res.isAdmin;
         updateHeader();
-        render('home');
+        render(landing());
       }, function () { setToken(null); render('login'); });
     });
   }
@@ -574,6 +805,11 @@
     try { db = JSON.parse(localStorage.getItem('rmcQuizDemo')) || {}; } catch (e) { db = {}; }
     db.users = db.users || {};
     db.attempts = db.attempts || [];
+    var DEMO_DEPTS = [
+      { name: 'טיפול נמרץ ילדים', wing: 'אגף ילדים' }, { name: 'טיפול נמרץ פגים', wing: 'אגף ילדים' },
+      { name: 'טיפול נמרץ כללי', wing: 'אגף כללי' }, { name: "פנימית א'", wing: 'אגף כללי' },
+      { name: "פנימית ב'", wing: 'אגף כללי' }, { name: "פנימית ג'", wing: 'אגף כללי' }
+    ];
     var Q = (window.DEMO_QUESTIONS || []).filter(function (q) { return q.correct != null; });
     function pub(q) { return { num: q.num, context: q.context, text: q.text, answers: q.answers }; }
     function save() { try { localStorage.setItem('rmcQuizDemo', JSON.stringify(db)); } catch (e) {} }
@@ -586,7 +822,7 @@
       switch (req.action) {
         case 'config': return { ok: true, domain: 'rmc.gov.il', departments: [], title: '' };
         case 'register':
-          db.users[req.email.toLowerCase()] = { email: req.email.toLowerCase(), firstName: req.firstName, lastName: req.lastName, department: req.department, password: req.password };
+          db.users[req.email.toLowerCase()] = { email: req.email.toLowerCase(), firstName: req.firstName, lastName: req.lastName, department: '', password: req.password };
           return { ok: true, message: 'הדגמה: קוד האימות הוא 123456' };
         case 'verify': case 'resetPassword':
           if (req.code !== '123456') return err('קוד שגוי (בהדגמה: 123456)');
@@ -601,6 +837,12 @@
           return { ok: true, token: db.session, user: u, isAdmin: true };
         case 'logout': db.session = null; return { ok: true };
         case 'me': return me() ? { ok: true, user: me(), isAdmin: true } : err('פג תוקף', 'AUTH');
+        case 'departments': return me() ? { ok: true, departments: DEMO_DEPTS } : err('פג תוקף', 'AUTH');
+        case 'setDepartment':
+          if (!me()) return err('פג תוקף', 'AUTH');
+          if (!DEMO_DEPTS.some(function (d) { return d.name === req.department; })) return err('יש לבחור מחלקה מהרשימה');
+          me().department = req.department;
+          return { ok: true, user: me() };
       }
       var user = me();
       if (!user) return err('פג תוקף ההתחברות', 'AUTH');
@@ -621,7 +863,9 @@
           } else r.next = pub(Q[open.answered]);
           return r;
         case 'adminList':
-          return { ok: true, missingKeys: (window.DEMO_QUESTIONS || []).filter(function (q) { return q.correct == null; }).map(function (q) { return q.num; }), attempts: db.attempts.slice().reverse().map(function (a) {
+          return { ok: true, departments: DEMO_DEPTS.map(function (d) {
+            return { name: d.name, wing: d.wing, registered: Object.keys(db.users).filter(function (e) { return db.users[e].department === d.name; }).length };
+          }), missingKeys: (window.DEMO_QUESTIONS || []).filter(function (q) { return q.correct == null; }).map(function (q) { return q.num; }), attempts: db.attempts.slice().reverse().map(function (a) {
             return { id: a.id, email: a.user.email, firstName: a.user.firstName, lastName: a.user.lastName, department: a.user.department,
               start: a.start, end: a.end, status: a.status, answered: a.answered, correct: a.correct, total: Q.length, score: a.score == null ? '' : a.score };
           }) };

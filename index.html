@@ -88,7 +88,6 @@
           <label>שם פרטי<input name="firstName" autocomplete="given-name" required maxlength="40"></label>
           <label>שם משפחה<input name="lastName" autocomplete="family-name" required maxlength="40"></label>
         </div>
-        <label>מחלקה<span class="dept-slot"></span></label>
         <label>אימייל ארגוני<input type="email" name="email" autocomplete="email" dir="ltr" required></label>
         <label>סיסמה<input type="password" name="password" autocomplete="new-password" dir="ltr" required minlength="8">
           <small class="muted">לפחות 8 תווים, כולל אות באנגלית וספרה</small></label>
@@ -128,6 +127,19 @@
         <button class="btn primary block" type="submit">שליחת קוד</button>
       </form>
       <div class="auth-links"><button class="link" data-go="login">חזרה להתחברות</button></div>
+    </section>
+  </template>
+
+  <template id="tpl-dept">
+    <section class="card auth">
+      <h1>שלום <span class="d-name"></span>, בחירת מחלקה</h1>
+      <p class="muted">המייל אומת בהצלחה. בחרו את האגף ואז את המחלקה שלכם. הבחירה נעשית פעם אחת, ושינוי בהמשך נעשה דרך מנהל הלומדה.</p>
+      <form novalidate>
+        <label>אגף<select name="wing" required><option value="">בחרו אגף…</option></select></label>
+        <label>מחלקה<select name="department" required disabled><option value="">קודם בחרו אגף</option></select></label>
+        <button class="btn primary block" type="submit">שמירה והמשך</button>
+      </form>
+      <p class="warn d-empty" hidden>רשימת המחלקות עדיין לא הוגדרה. פנו למנהל הלומדה.</p>
     </section>
   </template>
 
@@ -185,18 +197,53 @@
       <div class="admin-head">
         <h1>דוחות לומדה</h1>
         <div class="admin-tools">
-          <input type="search" id="adminSearch" placeholder="חיפוש שם / מחלקה / מייל">
-          <select id="adminStatus"><option value="">כל הסטטוסים</option><option>הושלם</option><option>בתהליך</option></select>
           <button class="btn primary" id="btnXlsx">הורדה לאקסל</button>
           <button class="btn ghost" id="btnBackHome">חזרה</button>
         </div>
       </div>
-      <div class="stats"></div>
-      <div class="table-wrap">
-        <table class="admin-table">
-          <thead><tr><th>תאריך</th><th>שם</th><th>מחלקה</th><th>סטטוס</th><th>ציון</th><th></th></tr></thead>
-          <tbody></tbody>
-        </table>
+      <div class="tabs" role="tablist">
+        <button role="tab" class="tab" data-tab="people" aria-selected="true">עובדים</button>
+        <button role="tab" class="tab" data-tab="depts" aria-selected="false">ציון מחלקתי</button>
+      </div>
+
+      <div class="panel" data-panel="people">
+        <div class="filters">
+          <input type="search" id="adminSearch" placeholder="חיפוש שם / מחלקה / מייל">
+          <select id="adminDept"><option value="">כל המחלקות</option></select>
+          <select id="adminStatus"><option value="">כל הסטטוסים</option><option>הושלם</option><option>בתהליך</option></select>
+        </div>
+        <div class="stats"></div>
+        <div class="table-wrap">
+          <table class="admin-table">
+            <thead><tr><th>תאריך</th><th>שם</th><th>מחלקה</th><th>סטטוס</th><th>ציון</th><th></th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel" data-panel="depts" hidden>
+        <div class="filters">
+          <label class="inline">אגף
+            <select id="wingFilter"><option value="">כל האגפים</option></select></label>
+          <label class="inline">מחלקה להשוואה
+            <select id="deptFocus"></select></label>
+        </div>
+        <div class="stats dept-stats"></div>
+        <figure class="dchart">
+          <figcaption>
+            <b>ציון ממוצע לפי מחלקה</b>
+            <span class="muted small">לכל עובד נספר הניסיון האחרון שהושלם · הקו המקווקו = ממוצע בית החולים</span>
+          </figcaption>
+          <div class="dchart-rows"></div>
+          <div class="dchart-axis" aria-hidden="true"><span></span><span class="ticks"><span>0%</span><span>50%</span><span>100%</span></span><span></span></div>
+          <div class="dtip" role="tooltip" hidden></div>
+        </figure>
+        <div class="table-wrap">
+          <table class="admin-table dept-table">
+            <thead><tr><th>דירוג</th><th>מחלקה</th><th>אגף</th><th>ציון ממוצע</th><th>הפרש מהממוצע</th><th>השלימו</th><th>רשומים</th><th>שיעור השלמה</th><th>טווח ציונים</th></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </div>
     </section>
   </template>

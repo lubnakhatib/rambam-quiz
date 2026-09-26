@@ -257,3 +257,55 @@ dialog::backdrop { background: rgba(10, 30, 30, .45); }
   .report-side { position: static; }
   .rp-list li { break-inside: avoid; padding: 5px 8px; }
 }
+
+/* ---------- admin tabs / filters ---------- */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 18px 0 4px; }
+.tab {
+  font: inherit; font-weight: 700; background: none; border: 0; color: var(--muted); cursor: pointer;
+  padding: 10px 16px; border-bottom: 3px solid transparent; margin-bottom: -1px;
+}
+.tab[aria-selected="true"] { color: var(--primary); border-bottom-color: var(--primary); }
+.filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: end; margin-top: 14px; }
+.filters input, .filters select { width: auto; min-width: 170px; padding: 9px 10px; }
+label.inline { font-size: 13px; color: var(--muted); gap: 4px; }
+.admin-table tr.focus td { background: var(--primary-soft); font-weight: 700; }
+
+/* ---------- department chart (horizontal bars, one series) ---------- */
+.dchart { position: relative; margin: 18px 0; padding: 16px; border: 1px solid var(--border); border-radius: 12px; }
+.dchart figcaption { display: flex; flex-direction: column; gap: 2px; margin-bottom: 14px; }
+.dchart-rows { display: grid; gap: 6px; }
+.drow {
+  display: grid; grid-template-columns: minmax(110px, 190px) 1fr 48px; gap: 12px; align-items: center;
+  padding: 5px 6px; border-radius: 8px; cursor: pointer; outline: none;
+}
+.drow:hover, .drow:focus-visible { background: var(--surface-2); }
+.drow:focus-visible { box-shadow: 0 0 0 2px var(--primary); }
+.dname { display: flex; flex-direction: column; line-height: 1.2; font-size: 15px; font-weight: 600; }
+.dname small { font-size: 12px; font-weight: 400; color: var(--muted); }
+.dtrack { position: relative; height: 14px; background: var(--surface-2); border-radius: 4px; }
+.dbar { position: absolute; inset-block: 0; inset-inline-start: 0; background: var(--bar); border-radius: 0 4px 4px 0; transition: width .5s ease; }
+[dir="rtl"] .dbar { border-radius: 4px 0 0 4px; }
+.drow.focus .dbar { background: var(--primary); }
+.drow.dim .dbar { background: var(--bar-muted); }
+.dmean { position: absolute; top: -5px; bottom: -5px; width: 0; border-inline-start: 2px dashed var(--text); opacity: .55; }
+.dval { font-weight: 700; font-variant-numeric: tabular-nums; text-align: end; }
+.dchart-axis {
+  display: grid; grid-template-columns: minmax(110px, 190px) 1fr 48px; gap: 12px; padding: 0 6px;
+  font-size: 12px; color: var(--muted); margin-top: 6px;
+}
+.dchart-axis .ticks { display: flex; justify-content: space-between; }
+.dtip {
+  position: absolute; z-index: 3; pointer-events: none; min-width: 200px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; box-shadow: var(--shadow);
+  padding: 8px 12px; display: grid; gap: 2px; font-size: 13.5px;
+}
+.dtip b { font-size: 14.5px; }
+:root { --bar: #3f8f89; --bar-muted: #a9cbc6; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bar: #3f9f96; --bar-muted: #2c4a4a; }
+}
+@media (max-width: 640px) {
+  .filters input, .filters select, label.inline { width: 100%; }
+  .drow { grid-template-columns: 100px 1fr 42px; gap: 8px; }
+  .dchart-axis { grid-template-columns: 100px 1fr 42px; gap: 8px; }
+}
